@@ -17,6 +17,7 @@ namespace SocialNetwork.Tests
         private readonly Mock<ILogger<HomeController>> _mockLogger;
         private readonly AppDBContext _context;
         private readonly IPostService _postService;
+        private readonly IFilesService filesService;
         public HomeControllerTests()
         {
             // Create In-Memory DB for tests
@@ -32,8 +33,10 @@ namespace SocialNetwork.Tests
 
             //Create Post Service
             _postService = new PostService(_context);
+
+            filesService = new FileService("");
             // Create controller with InMemory context
-            _controller = new HomeController(_mockLogger.Object, _context,_postService);
+            _controller = new HomeController(_mockLogger.Object, _context,_postService,filesService);
 
             // Clean the database before each test
             _context.Database.EnsureDeleted();
