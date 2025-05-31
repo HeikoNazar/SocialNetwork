@@ -20,7 +20,7 @@ jobs:
         dotnet-version: '9.0' 
 
     - name: Restore dependencies
-      run: SocialNetwork/SocialNetwork.sln
+      run: dotnet restore SocialNetwork/SocialNetwork.sln
 
     - name: Build
       run: dotnet build --no-restore --configuration Release
