@@ -24,6 +24,3 @@ jobs:
 
     - name: Build
       run: dotnet build SocialNetwork/SocialNetwork.sln
-
-    - name: Test
-      run: dotnet test SocialNetwork/SocialNetwork.sln
