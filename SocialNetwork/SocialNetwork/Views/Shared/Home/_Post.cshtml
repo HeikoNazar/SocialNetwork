@@ -32,35 +32,34 @@
 					<button class="btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
 						<ion-icon name="ellipsis-horizontal"></ion-icon>
 					</button>
-					<ul class="dropdown-menu dropdown-menu-end">
+					<ul class="dropdown-menu dropdown-menu-end" style="--bs-dropdown-bg: #fff; --bs-dropdown-color: #000; --bs-dropdown-link-color: #000; --bs-dropdown-link-hover-color: #000; --bs-dropdown-link-hover-bg: #f0f0f0; --bs-dropdown-link-active-color: #000; --bs-dropdown-link-active-bg: #e0e0e0; --bs-dropdown-border-color: #dee2e6;">
 						@if (Model.UserId == 1)
 						{
-						<li>
+							<li>
 								<form asp-controller="Home" asp-action="PostDelete">
-									<input  type="hidden" name="postId" id="deletePostId" value="@Model.Id" />
-									<button type="submit">Delete</button>
-									<button type="button">Cancel</button>
+									<input type="hidden" name="postId" id="deletePostId" value="@Model.Id" />
+									<button type="submit" class="dropdown-item">Delete</button>
 								</form>
-							
-						</li>
-						<li> 
-							<form asp-controller="Home" asp-action="TogglePostVisibility">
-								<input type="hidden" name="postId" value="@Model.Id" />
-								<button type="submit">
-                                    Set as @(isPrivate ? "public" : "private")
-                                </button>
-							</form>
-						
-						</li>
+
+							</li>
+							<li>
+								<form asp-controller="Home" asp-action="TogglePostVisibility">
+									<input type="hidden" name="postId" value="@Model.Id" />
+									<button type="submit" class="dropdown-item">
+										Set as @(isPrivate ? "public" : "private")
+									</button>
+								</form>
+
+							</li>
 						}
 
-						
+
 						<li>
 							@if (!isReported)
 							{
 								<form asp-controller="Home" asp-action="AddPostReport">
 									<input type="hidden" name="postId" value="@Model.Id" />
-									<button type="submit">
+									<button type="submit" class="dropdown-item">
 										Report
 									</button>
 								</form>
