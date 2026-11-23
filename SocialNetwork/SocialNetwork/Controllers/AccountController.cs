@@ -66,6 +66,86 @@ namespace SocialNetwork.Controllers
                 await _context.SaveChangesAsync();
             }
 
+            await SignInUserAsync(user);
+
+            // Only follow local return URLs, otherwise anyone could bounce users to another site.
+            if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+            {
+                return LocalRedirect(model.ReturnUrl);
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Register()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(new RegisterVM());
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterVM model)
+        {
+            model.FullName = model.FullName?.Trim() ?? string.Empty;
+            model.UserHandle = model.UserHandle?.Trim() ?? string.Empty;
+            model.Email = model.Email?.Trim() ?? string.Empty;
+
+            if (ModelState.IsValid)
+            {
+                if (await _context.Users.AnyAsync(u => u.Email == model.Email))
+                {
+                    ModelState.AddModelError(nameof(model.Email), "An account with this email already exists");
+                }
+
+                if (await _context.Users.AnyAsync(u => u.UserHandle == model.UserHandle))
+                {
+                    ModelState.AddModelError(nameof(model.UserHandle), "This username is already taken");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.Password = string.Empty;
+                model.ConfirmPassword = string.Empty;
+                return View(model);
+            }
+
+            var user = new User
+            {
+                FullName = model.FullName,
+                UserHandle = model.UserHandle,
+                Email = model.Email
+            };
+            user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
+
+            try
+            {
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // Most likely someone registered the same email at the same moment (unique index on Email).
+                ModelState.AddModelError(string.Empty, "Could not create the account. Please try again.");
+                model.Password = string.Empty;
+                model.ConfirmPassword = string.Empty;
+                return View(model);
+            }
+
+            await SignInUserAsync(user);
+            return RedirectToAction("Index", "Home");
+        }
+
+        private Task SignInUserAsync(User user)
+        {
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -75,17 +155,9 @@ namespace SocialNetwork.Controllers
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            await HttpContext.SignInAsync(
+            return HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity));
-
-            // Only follow local return URLs, otherwise anyone could bounce users to another site.
-            if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-            {
-                return LocalRedirect(model.ReturnUrl);
-            }
-
-            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
