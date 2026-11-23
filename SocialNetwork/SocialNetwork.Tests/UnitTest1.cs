@@ -4,7 +4,9 @@ using SocialNetwork.Controllers;
 using SocialNetwork.Data;
 using SocialNetwork.Data.Models;
 using SocialNetwork.ViewModels.Home;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -34,6 +36,14 @@ namespace SocialNetwork.Tests
             _postService = new PostService(_context);
             // Create controller with InMemory context
             _controller = new HomeController(_mockLogger.Object, _context,_postService);
+
+            // The controller reads the current user from the signed-in principal
+            var principal = new ClaimsPrincipal(new ClaimsIdentity(
+                new[] { new Claim(ClaimTypes.NameIdentifier, "1") }, "TestAuth"));
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = principal }
+            };
 
             // Clean the database before each test
             _context.Database.EnsureDeleted();

@@ -1,14 +1,17 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using SocialNetwork.Data;
 using SocialNetwork.Data.Models;
 using SocialNetwork.Data.Services;
+using SocialNetwork.Extensions;
 using SocialNetwork.ViewModels.Home;
 
 namespace SocialNetwork.Controllers;
 
+[Authorize]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -23,7 +26,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        int loggeedInUser = 1;
+        int loggeedInUser = User.GetUserId();
         var allPosts = await _postService.GetAllPostAsync(loggeedInUser);
 
         return View(allPosts);
@@ -33,7 +36,7 @@ public class HomeController : Controller
     public async Task<IActionResult> CreatePost(PostVM post)
     {
         // Get the logged in user
-        int loggedInUser = 1;
+        int loggedInUser = User.GetUserId();
 
         // Create a new post
         var newPost = new Post
@@ -56,7 +59,7 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> TogglePostLike(PostLikeVM postLikeVM) 
     {
-        int loggedInUser = 1;
+        int loggedInUser = User.GetUserId();
         await _postService.TogglePostLikeAsync(postLikeVM.PostId, loggedInUser);
         var post = await _postService.GetPostByIdAsync(postLikeVM.PostId);
 
@@ -68,7 +71,7 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> TogglePostFavorite(PostFavoriteVM postFavoriteVM)
     {
-        int loggedInUser = 1;
+        int loggedInUser = User.GetUserId();
         await _postService.TogglePostFavoriteAsync(postFavoriteVM.PostId, loggedInUser);
 
         var post = await _postService.GetPostByIdAsync(postFavoriteVM.PostId);
@@ -80,7 +83,7 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> TogglePostVisibility(PostVisibilityVM postVisibilityVM)
     {
-        int loggedInUser = 1;
+        int loggedInUser = User.GetUserId();
         await _postService.TogglePostVisibility(postVisibilityVM.PostId, loggedInUser);
         return RedirectToAction("Index");
 
@@ -90,7 +93,7 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddPostComment(PostCommentVM postCommentVM)
     {
-        int loggedInUser = 1;
+        int loggedInUser = User.GetUserId();
 
         //Creat a post object
         var newComment = new Comment()
@@ -110,7 +113,7 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> AddPostReport(PostReportVM postReportVM)
     {
-        int loggedInUser = 1;
+        int loggedInUser = User.GetUserId();
 
         await _postService.ReportPostAsync(postReportVM.PostId,loggedInUser);
 

@@ -51,13 +51,17 @@
                         <li class="dropdown-item d-flex align-items-center">
                             <img src="~/images/user.png" class="rounded-circle me-2" width="40" height="40" />
                             <div>
-                                <div class="fw-bold">Name</div>
-                                <div class="text-muted">@@nick</div>
+                                <div class="fw-bold">@User.GetFullName()</div>
+                                <div class="text-muted">@@@User.GetUserHandle()</div>
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#">My Account</a></li>
-                        <li><a class="dropdown-item" href="#">Log Out</a></li>
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item">Log Out</button>
+                            </form>
+                        </li>
                     </ul>
                 </div>
             </div>

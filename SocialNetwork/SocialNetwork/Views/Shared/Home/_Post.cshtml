@@ -10,10 +10,11 @@
 		var t when t.TotalMinutes >= 1 => $"{(int)t.TotalMinutes}m ago",
 		_ => "Just now"
 	};
-	bool isFavorited = Model.Favorites.Any(n => n.UserId == 1);
-	bool isPrivate = Model.IsPrivate == true && Model.UserId == 1;
-	bool isReported = Model.Reports.Any(n => n.UserId == 1);
-	bool isLiked = Model.Likes.Any(n => n.UserId == 1);
+	int currentUserId = User.GetUserId();
+	bool isFavorited = Model.Favorites.Any(n => n.UserId == currentUserId);
+	bool isPrivate = Model.IsPrivate == true && Model.UserId == currentUserId;
+	bool isReported = Model.Reports.Any(n => n.UserId == currentUserId);
+	bool isLiked = Model.Likes.Any(n => n.UserId == currentUserId);
 }
 
 <div id="post-@Model.Id" class="card mb-3">
@@ -33,27 +34,27 @@
 						<ion-icon name="ellipsis-horizontal"></ion-icon>
 					</button>
 					<ul class="dropdown-menu dropdown-menu-end" style="--bs-dropdown-bg: #fff; --bs-dropdown-color: #000; --bs-dropdown-link-color: #000; --bs-dropdown-link-hover-color: #000; --bs-dropdown-link-hover-bg: #f0f0f0; --bs-dropdown-link-active-color: #000; --bs-dropdown-link-active-bg: #e0e0e0; --bs-dropdown-border-color: #dee2e6;">
-						@if (Model.UserId == 1)
+						@if (Model.UserId == currentUserId)
 						{
-							<li>
+						<li>
 								<form asp-controller="Home" asp-action="PostDelete">
-									<input type="hidden" name="postId" id="deletePostId" value="@Model.Id" />
+									<input  type="hidden" name="postId" id="deletePostId" value="@Model.Id" />
 									<button type="submit" class="dropdown-item">Delete</button>
 								</form>
-
-							</li>
-							<li>
-								<form asp-controller="Home" asp-action="TogglePostVisibility">
-									<input type="hidden" name="postId" value="@Model.Id" />
-									<button type="submit" class="dropdown-item">
-										Set as @(isPrivate ? "public" : "private")
-									</button>
-								</form>
-
-							</li>
+							
+						</li>
+						<li> 
+							<form asp-controller="Home" asp-action="TogglePostVisibility">
+								<input type="hidden" name="postId" value="@Model.Id" />
+								<button type="submit" class="dropdown-item">
+                                    Set as @(isPrivate ? "public" : "private")
+                                </button>
+							</form>
+						
+						</li>
 						}
 
-
+						
 						<li>
 							@if (!isReported)
 							{

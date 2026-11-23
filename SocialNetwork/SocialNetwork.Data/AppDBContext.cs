@@ -21,6 +21,8 @@ namespace SocialNetwork.Data
         {
             modelBuilder.Entity<User>().HasMany(u => u.Posts).WithOne(p => p.User).HasForeignKey(p => p.UserId);
 
+            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+
 
             modelBuilder.Entity<Like>().HasKey(l => new { l.PostId, l.UserId });
 
