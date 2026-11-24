@@ -137,4 +137,46 @@ public class HomeController : Controller
         return  RedirectToAction("Index");
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleSubscription(int userId)
+    {
+        int currentUserId = User.GetUserId();
+
+        // Can't subscribe to yourself or to a user that doesn't exist
+        if (userId != currentUserId && await _context.Users.AnyAsync(u => u.Id == userId && !u.IsDeleted))
+        {
+            var existing = await _context.Subscriptions.FindAsync(currentUserId, userId);
+            if (existing == null)
+            {
+                _context.Subscriptions.Add(new Subscription
+                {
+                    SubscriberId = currentUserId,
+                    SubscribedToId = userId,
+                    DateCreated = DateTime.UtcNow
+                });
+            }
+            else
+            {
+                _context.Subscriptions.Remove(existing);
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // Double click: the other request already made the change, nothing more to do.
+            }
+        }
+
+        // Called from JavaScript: return just the updated box. Otherwise go back to the home page.
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            return ViewComponent("RecommendedProfiles");
+        }
+
+        return RedirectToAction("Index");
+    }
 }

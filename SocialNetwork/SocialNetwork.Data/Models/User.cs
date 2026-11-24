@@ -21,5 +21,9 @@ namespace SocialNetwork.Data.Models
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
         public ICollection<Report> Reports { get; set; } = new List<Report>();
+        // Users this user is subscribed to
+        public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+        // Users subscribed to this user
+        public ICollection<Subscription> Subscribers { get; set; } = new List<Subscription>();
     }
 }

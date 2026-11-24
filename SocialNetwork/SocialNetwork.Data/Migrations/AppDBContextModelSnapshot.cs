@@ -155,6 +155,24 @@ namespace SocialNetwork.Data.Migrations
                     b.ToTable("Reports");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Data.Models.Subscription", b =>
+                {
+                    b.Property<int>("SubscriberId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubscribedToId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("SubscriberId", "SubscribedToId");
+
+                    b.HasIndex("SubscribedToId");
+
+                    b.ToTable("Subscriptions");
+                });
+
             modelBuilder.Entity("SocialNetwork.Data.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -279,6 +297,25 @@ namespace SocialNetwork.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Data.Models.Subscription", b =>
+                {
+                    b.HasOne("SocialNetwork.Data.Models.User", "SubscribedTo")
+                        .WithMany("Subscribers")
+                        .HasForeignKey("SubscribedToId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SocialNetwork.Data.Models.User", "Subscriber")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("SubscriberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SubscribedTo");
+
+                    b.Navigation("Subscriber");
+                });
+
             modelBuilder.Entity("SocialNetwork.Data.Models.Post", b =>
                 {
                     b.Navigation("Comments");
@@ -301,6 +338,10 @@ namespace SocialNetwork.Data.Migrations
                     b.Navigation("Posts");
 
                     b.Navigation("Reports");
+
+                    b.Navigation("Subscribers");
+
+                    b.Navigation("Subscriptions");
                 });
 #pragma warning restore 612, 618
         }

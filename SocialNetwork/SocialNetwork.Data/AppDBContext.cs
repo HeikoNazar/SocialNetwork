@@ -15,6 +15,7 @@ namespace SocialNetwork.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,6 +51,13 @@ namespace SocialNetwork.Data
             modelBuilder.Entity<Report>().HasOne(f => f.Post).WithMany(p => p.Reports).HasForeignKey(f => f.PostId).OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Report>().HasOne(f => f.User).WithMany(u => u.Reports).HasForeignKey(f => f.UserId).OnDelete(DeleteBehavior.Restrict);
+
+            //Subscriptions
+            modelBuilder.Entity<Subscription>().HasKey(s => new { s.SubscriberId, s.SubscribedToId });
+
+            modelBuilder.Entity<Subscription>().HasOne(s => s.Subscriber).WithMany(u => u.Subscriptions).HasForeignKey(s => s.SubscriberId).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Subscription>().HasOne(s => s.SubscribedTo).WithMany(u => u.Subscribers).HasForeignKey(s => s.SubscribedToId).OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
         }

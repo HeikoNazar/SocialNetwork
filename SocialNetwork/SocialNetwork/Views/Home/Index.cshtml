@@ -13,7 +13,7 @@
 			<!-- Sidebar -->
 			<div id="sidebar">
 				<div class="card mb-3">
-						<partial name="Sidebar/_RecommendedProfiles"></partial>
+						@await Component.InvokeAsync("RecommendedProfiles")
 				</div>
 				<div class="card mb-3">
 						<partial name="Sidebar/_TrendsForYou"></partial>
@@ -107,6 +107,27 @@
 
             }
         })
+
+        // Subscribe / unsubscribe in the Recommended Profiles box without reloading the page
+        document.getElementById('sidebar').addEventListener('submit', function (e) {
+            var form = e.target.closest('.subscribe-form');
+            if (!form) return;
+            e.preventDefault();
+
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Request failed: ' + response.status);
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById('recommended-profiles').outerHTML = html;
+                })
+                .catch(error => console.error('Error: ', error));
+        });
     })
 
 </script>

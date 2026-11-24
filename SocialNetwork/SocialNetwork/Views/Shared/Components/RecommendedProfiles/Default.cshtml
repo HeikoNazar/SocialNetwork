@@ -1,0 +1,34 @@
+@model List<SocialNetwork.ViewModels.Home.RecommendedProfileVM>
+
+<div class="card-body" id="recommended-profiles">
+	<h5 class="card-title">Recommended Profiles</h5>
+	@if (Model.Count == 0)
+	{
+		<p class="text-muted mb-0">No new profiles yet.</p>
+	}
+	else
+	{
+		<ul class="list-unstyled mb-0">
+			@foreach (var profile in Model)
+			{
+				<li class="d-flex justify-content-between align-items-center mb-3">
+					<div class="d-flex align-items-center">
+						<img src="@(profile.ProfilePictureUrl ?? "/images/user.png")" alt="@profile.FullName" class="me-2" width="40" height="40">
+						<div>
+							<strong>@profile.FullName</strong> <br>
+							<small class="text-muted">@@@profile.UserHandle</small> <br>
+							<small class="text-muted">Subscribers: @profile.SubscribersCount</small>
+						</div>
+					</div>
+					<form asp-controller="Home" asp-action="ToggleSubscription" method="post" class="subscribe-form">
+						<input type="hidden" name="userId" value="@profile.Id" />
+						<button type="submit" class="btn btn-sm @(profile.IsSubscribed ? "btn-outline-secondary" : "btn-primary")">
+							<ion-icon name="@(profile.IsSubscribed ? "checkmark-outline" : "person-add-outline")"></ion-icon>
+							@(profile.IsSubscribed ? "Subscribed" : "Subscribe")
+						</button>
+					</form>
+				</li>
+			}
+		</ul>
+	}
+</div>
