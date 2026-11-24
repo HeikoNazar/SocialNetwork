@@ -32,6 +32,22 @@ public class HomeController : Controller
         return View(allPosts);
     }
 
+    public async Task<IActionResult> Subscriptions()
+    {
+        int loggedInUser = User.GetUserId();
+        var posts = await _postService.GetSubscribedPostsAsync(loggedInUser);
+
+        return View(posts);
+    }
+
+    public async Task<IActionResult> Saved()
+    {
+        int loggedInUser = User.GetUserId();
+        var posts = await _postService.GetSavedPostsAsync(loggedInUser);
+
+        return View(posts);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreatePost(PostVM post)
     {

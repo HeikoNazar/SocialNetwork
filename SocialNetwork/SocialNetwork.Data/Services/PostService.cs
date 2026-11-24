@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SocialNetwork.Data.Services
 {
-    public class PostService: IPostService
+    public class PostService : IPostService
     {
         private readonly AppDBContext _context;
         public PostService(AppDBContext context)
@@ -48,19 +48,47 @@ namespace SocialNetwork.Data.Services
             return post;
         }
 
+        // Posts the given user is allowed to see, with everything the post card needs
+        private IQueryable<Post> VisiblePostsQuery(int userId)
+        {
+            return _context.Posts
+                .Where(n => (!n.IsPrivate || n.UserId == userId) && n.Reports.Count < 5 && !n.IsDeleted)
+                .Include(n => n.User)
+                .Include(n => n.Comments).ThenInclude(c => c.User)
+                .Include(n => n.Likes)
+                .Include(n => n.Favorites)
+                .ThenInclude(n => n.User)
+                .Include(n => n.Reports);
+        }
+
         public async Task<List<Post>> GetAllPostAsync(int userId)
         {
-            var allPosts = await _context.Posts
-            .Where(n => (!n.IsPrivate || n.UserId == userId) && n.Reports.Count < 5 && !n.IsDeleted)
-            .Include(n => n.User)
-            .Include(n => n.Comments)
-            .Include(n => n.Likes)
-            .Include(n => n.Favorites)
-            .ThenInclude(n => n.User)
-            .Include(n => n.Reports)
-            .OrderByDescending(n => n.DateCreated)
-            .ToListAsync();
+            var allPosts = await VisiblePostsQuery(userId)
+                .OrderByDescending(n => n.DateCreated)
+                .ToListAsync();
             return allPosts;
+        }
+
+        public async Task<List<Post>> GetSubscribedPostsAsync(int userId)
+        {
+            // Posts written by the profiles this user is subscribed to
+            var subscribedToIds = _context.Subscriptions
+                .Where(s => s.SubscriberId == userId)
+                .Select(s => s.SubscribedToId);
+
+            return await VisiblePostsQuery(userId)
+                .Where(n => subscribedToIds.Contains(n.UserId))
+                .OrderByDescending(n => n.DateCreated)
+                .ToListAsync();
+        }
+
+        public async Task<List<Post>> GetSavedPostsAsync(int userId)
+        {
+            // Posts this user has added to favorites
+            return await VisiblePostsQuery(userId)
+                .Where(n => n.Favorites.Any(f => f.UserId == userId))
+                .OrderByDescending(n => n.DateCreated)
+                .ToListAsync();
         }
 
         public async Task<Post> GetPostByIdAsync(int postId)
