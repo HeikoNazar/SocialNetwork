@@ -41,6 +41,19 @@ public class HomeController : Controller
         return View(posts);
     }
 
+    public async Task<IActionResult> Hashtag(string name)
+    {
+        int loggedInUser = User.GetUserId();
+        var hashtag = HashtagParser.Normalize(name);
+
+        var posts = hashtag.Length == 0
+            ? new List<Post>()
+            : await _postService.GetPostsByHashtagAsync(loggedInUser, hashtag);
+
+        ViewData["Hashtag"] = hashtag;
+        return View(posts);
+    }
+
     public async Task<IActionResult> Saved()
     {
         int loggedInUser = User.GetUserId();

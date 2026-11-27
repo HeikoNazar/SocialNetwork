@@ -1,4 +1,5 @@
-﻿using SocialNetwork.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SocialNetwork.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,35 @@ namespace SocialNetwork.Data.Helpers
                 await appDBContext.Posts.AddRangeAsync(newPostWithoutImage, newPostWithImage);
                 await appDBContext.SaveChangesAsync();
             }
+        }
+    
+
+        // Links hashtags for posts that were written before hashtags existed. Does nothing once they are linked.
+        public static async Task BackfillHashtagsAsync(AppDBContext appDBContext)
+        {
+            var posts = await appDBContext.Posts
+                .Where(p => p.Content.Contains("#") && !p.PostHashtags.Any())
+                .ToListAsync();
+            if (posts.Count == 0)
+            {
+                return;
+            }
+
+            var tags = (await appDBContext.Hashtags.ToListAsync()).ToDictionary(h => h.Name);
+            foreach (var post in posts)
+            {
+                foreach (var name in HashtagParser.Extract(post.Content))
+                {
+                    if (!tags.TryGetValue(name, out var tag))
+                    {
+                        tag = new Hashtag { Name = name };
+                        tags[name] = tag;
+                    }
+                    post.PostHashtags.Add(new PostHashtag { Hashtag = tag });
+                }
+            }
+
+            await appDBContext.SaveChangesAsync();
         }
     }
 }

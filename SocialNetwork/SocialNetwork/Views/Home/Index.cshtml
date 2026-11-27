@@ -16,7 +16,7 @@
 						@await Component.InvokeAsync("RecommendedProfiles")
 				</div>
 				<div class="card mb-3">
-						<partial name="Sidebar/_TrendsForYou"></partial>
+						@await Component.InvokeAsync("PopularHashtags")
 				</div>
 			</div>
 			<div id="posts-container"> 

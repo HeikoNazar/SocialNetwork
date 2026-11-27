@@ -36,25 +36,25 @@
 					<ul class="dropdown-menu dropdown-menu-end" style="--bs-dropdown-bg: #fff; --bs-dropdown-color: #000; --bs-dropdown-link-color: #000; --bs-dropdown-link-hover-color: #000; --bs-dropdown-link-hover-bg: #f0f0f0; --bs-dropdown-link-active-color: #000; --bs-dropdown-link-active-bg: #e0e0e0; --bs-dropdown-border-color: #dee2e6;">
 						@if (Model.UserId == currentUserId)
 						{
-						<li>
+							<li>
 								<form asp-controller="Home" asp-action="PostDelete">
-									<input  type="hidden" name="postId" id="deletePostId" value="@Model.Id" />
+									<input type="hidden" name="postId" id="deletePostId" value="@Model.Id" />
 									<button type="submit" class="dropdown-item">Delete</button>
 								</form>
-							
-						</li>
-						<li> 
-							<form asp-controller="Home" asp-action="TogglePostVisibility">
-								<input type="hidden" name="postId" value="@Model.Id" />
-								<button type="submit" class="dropdown-item">
-                                    Set as @(isPrivate ? "public" : "private")
-                                </button>
-							</form>
-						
-						</li>
+
+							</li>
+							<li>
+								<form asp-controller="Home" asp-action="TogglePostVisibility">
+									<input type="hidden" name="postId" value="@Model.Id" />
+									<button type="submit" class="dropdown-item">
+										Set as @(isPrivate ? "public" : "private")
+									</button>
+								</form>
+
+							</li>
 						}
 
-						
+
 						<li>
 							@if (!isReported)
 							{
@@ -75,10 +75,10 @@
 
 		<!-- post text -->
 		<p class="mt-2">
-			@Model.Content
+			@Html.WithHashtagLinks(Model.Content)
 		</p>
 
-		<!-- image placeholder -->                                                                        <!-- onerror="this.style.display='none' ;" -->
+		<!-- image placeholder -->                                                                        
 		@if (!string.IsNullOrEmpty(Model.ImageUrl))
 		{
 			<div class="text-center">
@@ -94,17 +94,10 @@
 						<input type="hidden" name="postId" value="@Model.Id" />
 						@Html.AntiForgeryToken()
 						<button type="submit" class="btn btn-light like-button">
-							<ion-icon style="font-size: 18px;" name="@(isLiked ? "thumbs-up" : "thumbs-up-outline")"> </ion-icon>  <!-- ion-icon name="thumbs-up-sharp" style="font-size: 20px; color: @@(Model.Likes.Any(n => n.UserId == 1) ? "#1E90FF" : "#D3D3D3");" -->
+							<ion-icon style="font-size: 18px;" name="@(isLiked ? "thumbs-up" : "thumbs-up-outline")"> </ion-icon> 
 						</button>
 					</form>
 					<span class="ms-2">@Model.Likes.Count</span>
-
-					@*
-					<button class="btn btn-light btn-sm">
-						<ion-icon style="font-size: 18px;" name="thumbs-down-outline"></ion-icon>
-					</button>
-					<span>0</span>
-					*@
 
 					<button class="btn btn-light ms-2">
 						<ion-icon style="font-size: 18px;" name="chatbox-outline"></ion-icon>
@@ -118,7 +111,7 @@
 						<input type="hidden" name="postId" value="@Model.Id" />
 						@Html.AntiForgeryToken()
 						<button type="submit" class="btn btn-light favorite-button">
-							<ion-icon name="@(isFavorited?"bookmark":"bookmark-outline")"> </ion-icon>
+							<ion-icon name="@(isFavorited ? "bookmark" : "bookmark-outline")"> </ion-icon>
 						</button>
 						@if (Model.Favorites.Count != 0)
 						{
@@ -126,7 +119,7 @@
 						}
 					</form>
 				</div>
-				
+
 				<button class="btn btn-light me-2">
 					<ion-icon name="resize-outline"></ion-icon>
 				</button>
@@ -162,7 +155,7 @@
 							<div class="d-flex justify-content-between mt-1">
 								<p class="mb-1">@comment.Content</p>
 								<form asp-controller="Home" asp-action="RemovePostComment" class="remove-comment-form">
-                                    @Html.AntiForgeryToken()
+									@Html.AntiForgeryToken()
 									<input type="hidden" name="commentId" value="@comment.Id" />
 									<input type="hidden" name="postId" value="@comment.PostId" />
 									<button type="submit" class="btn btn-link text-danger btn-sm p-0" title="Remove comment">
@@ -199,11 +192,3 @@
 		</div>
 	</div>
 </div>
-@* <partial name="Home/_PostDeleteConfirmation"/>  *@
-@* <script>  *@
-@*     function showDeletePostDialog(postId) {         *@
-@* 		console.log("Post ID: " + postId); *@
-@* 		document.getElementById("deletePostId").value = postId; *@
-@* 		UIkit.modal(document.getElementById('postDeleteDialog')).show();  *@
-@*     } *@
-@*  </script> *@

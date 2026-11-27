@@ -16,6 +16,8 @@ namespace SocialNetwork.Data
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<Hashtag> Hashtags { get; set; }
+        public DbSet<PostHashtag> PostHashtags { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,6 +60,17 @@ namespace SocialNetwork.Data
             modelBuilder.Entity<Subscription>().HasOne(s => s.Subscriber).WithMany(u => u.Subscriptions).HasForeignKey(s => s.SubscriberId).OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Subscription>().HasOne(s => s.SubscribedTo).WithMany(u => u.Subscribers).HasForeignKey(s => s.SubscribedToId).OnDelete(DeleteBehavior.Restrict);
+
+            //Hashtags
+            modelBuilder.Entity<Hashtag>().Property(h => h.Name).IsRequired().HasMaxLength(50);
+
+            modelBuilder.Entity<Hashtag>().HasIndex(h => h.Name).IsUnique();
+
+            modelBuilder.Entity<PostHashtag>().HasKey(ph => new { ph.PostId, ph.HashtagId });
+
+            modelBuilder.Entity<PostHashtag>().HasOne(ph => ph.Post).WithMany(p => p.PostHashtags).HasForeignKey(ph => ph.PostId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PostHashtag>().HasOne(ph => ph.Hashtag).WithMany(h => h.PostHashtags).HasForeignKey(ph => ph.HashtagId).OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(modelBuilder);
         }

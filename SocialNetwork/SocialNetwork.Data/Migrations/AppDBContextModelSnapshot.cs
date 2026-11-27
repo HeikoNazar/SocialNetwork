@@ -76,6 +76,27 @@ namespace SocialNetwork.Data.Migrations
                     b.ToTable("Favorites");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Data.Models.Hashtag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Hashtags");
+                });
+
             modelBuilder.Entity("SocialNetwork.Data.Models.Like", b =>
                 {
                     b.Property<int>("PostId")
@@ -132,6 +153,21 @@ namespace SocialNetwork.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("SocialNetwork.Data.Models.PostHashtag", b =>
+                {
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HashtagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PostId", "HashtagId");
+
+                    b.HasIndex("HashtagId");
+
+                    b.ToTable("PostHashtags");
                 });
 
             modelBuilder.Entity("SocialNetwork.Data.Models.Report", b =>
@@ -278,6 +314,25 @@ namespace SocialNetwork.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Data.Models.PostHashtag", b =>
+                {
+                    b.HasOne("SocialNetwork.Data.Models.Hashtag", "Hashtag")
+                        .WithMany("PostHashtags")
+                        .HasForeignKey("HashtagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SocialNetwork.Data.Models.Post", "Post")
+                        .WithMany("PostHashtags")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hashtag");
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("SocialNetwork.Data.Models.Report", b =>
                 {
                     b.HasOne("SocialNetwork.Data.Models.Post", "Post")
@@ -316,6 +371,11 @@ namespace SocialNetwork.Data.Migrations
                     b.Navigation("Subscriber");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Data.Models.Hashtag", b =>
+                {
+                    b.Navigation("PostHashtags");
+                });
+
             modelBuilder.Entity("SocialNetwork.Data.Models.Post", b =>
                 {
                     b.Navigation("Comments");
@@ -323,6 +383,8 @@ namespace SocialNetwork.Data.Migrations
                     b.Navigation("Favorites");
 
                     b.Navigation("Likes");
+
+                    b.Navigation("PostHashtags");
 
                     b.Navigation("Reports");
                 });

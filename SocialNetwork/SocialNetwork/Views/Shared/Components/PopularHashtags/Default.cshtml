@@ -1,0 +1,22 @@
+@model List<SocialNetwork.ViewModels.Home.PopularHashtagVM>
+
+<div class="card-body">
+	<h5 class="card-title">Popular Hashtags</h5>
+	@if (Model.Count == 0)
+	{
+		<p class="text-muted mb-0">No hashtags yet. Add a #hashtag to a post.</p>
+	}
+	else
+	{
+		<ul class="list-unstyled mb-0">
+			@foreach (var hashtag in Model)
+			{
+				<li class="mb-2">
+					<a asp-controller="Home" asp-action="Hashtag" asp-route-name="@hashtag.Name">#@hashtag.Name</a>
+					<br>
+					<span class="text-muted small">@hashtag.PostsCount @(hashtag.PostsCount == 1 ? "post" : "posts")</span>
+				</li>
+			}
+		</ul>
+	}
+</div>

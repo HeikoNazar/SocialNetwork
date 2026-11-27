@@ -38,6 +38,7 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDBContext>();
     await dbContext.Database.MigrateAsync();
     await DbInitializer.SeedAsync(dbContext);
+    await DbInitializer.BackfillHashtagsAsync(dbContext);
 
     // DEVELOPMENT ONLY: give the seeded "nick" user a login so there is someone to sign in as.
     // Remove this (or add a registration page) before the app is used by real people.

@@ -44,6 +44,8 @@ namespace SocialNetwork.Data.Services
                     post.ImageUrl = "/images/uploaded/" + fileName;
                 }
             }
+            await AttachHashtagsAsync(post);
+
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
             return post;
@@ -91,6 +93,34 @@ namespace SocialNetwork.Data.Services
                 .OrderByDescending(n => n.DateCreated)
                 .ToListAsync();
         }
+
+        public async Task<List<Post>> GetPostsByHashtagAsync(int userId, string hashtag)
+        {
+            var name = HashtagParser.Normalize(hashtag);
+
+            return await VisiblePostsQuery(userId)
+                .Where(n => n.PostHashtags.Any(ph => ph.Hashtag.Name == name))
+                .OrderByDescending(n => n.DateCreated)
+                .ToListAsync();
+        }
+
+        // Finds the #hashtags in the post text and links them to the post (creating new hashtags when needed)
+        private async Task AttachHashtagsAsync(Post post)
+        {
+            var names = HashtagParser.Extract(post.Content);
+            if (names.Count == 0)
+            {
+                return;
+            }
+
+            var existing = await _context.Hashtags.Where(h => names.Contains(h.Name)).ToListAsync();
+            foreach (var name in names)
+            {
+                var hashtag = existing.FirstOrDefault(h => h.Name == name) ?? new Hashtag { Name = name };
+                post.PostHashtags.Add(new PostHashtag { Hashtag = hashtag });
+            }
+        }
+
         public async Task<List<Post>> GetSavedPostsAsync(int userId)
         {
             // Posts this user has added to favorites

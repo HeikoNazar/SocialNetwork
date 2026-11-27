@@ -14,6 +14,7 @@ namespace SocialNetwork.Data.Services
         Task<List<Post>> GetSubscribedPostsAsync(int userId);
         Task<List<Post>> GetSavedPostsAsync(int userId);
         Task<List<Post>> GetUserPostsAsync(int userId);
+        Task<List<Post>> GetPostsByHashtagAsync(int userId, string hashtag);
         Task<Post> GetPostByIdAsync(int postId);
         Task<Post> CreatePostAsync(Post post, IFormFile image);
         Task RemovePostAsync(int postId);
