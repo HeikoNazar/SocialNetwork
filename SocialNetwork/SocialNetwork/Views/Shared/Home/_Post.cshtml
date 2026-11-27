@@ -23,7 +23,7 @@
 		<div>
 			<div class="d-flex justify-content-between align-items-center">
 				<div class="d-flex align-items-center">
-					<img src="@(Model.User.ProfilePictureUrl ?? "/images/user.png")" class="me-2" width="40" height="40">
+					<img src="@(Model.User.ProfilePictureUrl ?? "/images/user.png")" class="me-2" width="40" height="40" style="object-fit: cover;">
 					<div>
 						<strong>@Model.User.FullName</strong> <br>
 						<small class="text-muted">@@@Model.User.UserHandle</small>
@@ -36,25 +36,25 @@
 					<ul class="dropdown-menu dropdown-menu-end" style="--bs-dropdown-bg: #fff; --bs-dropdown-color: #000; --bs-dropdown-link-color: #000; --bs-dropdown-link-hover-color: #000; --bs-dropdown-link-hover-bg: #f0f0f0; --bs-dropdown-link-active-color: #000; --bs-dropdown-link-active-bg: #e0e0e0; --bs-dropdown-border-color: #dee2e6;">
 						@if (Model.UserId == currentUserId)
 						{
-							<li>
+						<li>
 								<form asp-controller="Home" asp-action="PostDelete">
-									<input type="hidden" name="postId" id="deletePostId" value="@Model.Id" />
+									<input  type="hidden" name="postId" id="deletePostId" value="@Model.Id" />
 									<button type="submit" class="dropdown-item">Delete</button>
 								</form>
-
-							</li>
-							<li>
-								<form asp-controller="Home" asp-action="TogglePostVisibility">
-									<input type="hidden" name="postId" value="@Model.Id" />
-									<button type="submit" class="dropdown-item">
-										Set as @(isPrivate ? "public" : "private")
-									</button>
-								</form>
-
-							</li>
+							
+						</li>
+						<li> 
+							<form asp-controller="Home" asp-action="TogglePostVisibility">
+								<input type="hidden" name="postId" value="@Model.Id" />
+								<button type="submit" class="dropdown-item">
+                                    Set as @(isPrivate ? "public" : "private")
+                                </button>
+							</form>
+						
+						</li>
 						}
 
-
+						
 						<li>
 							@if (!isReported)
 							{
@@ -118,7 +118,7 @@
 						<input type="hidden" name="postId" value="@Model.Id" />
 						@Html.AntiForgeryToken()
 						<button type="submit" class="btn btn-light favorite-button">
-							<ion-icon name="@(isFavorited ? "bookmark" : "bookmark-outline")"> </ion-icon>
+							<ion-icon name="@(isFavorited?"bookmark":"bookmark-outline")"> </ion-icon>
 						</button>
 						@if (Model.Favorites.Count != 0)
 						{
@@ -126,7 +126,7 @@
 						}
 					</form>
 				</div>
-
+				
 				<button class="btn btn-light me-2">
 					<ion-icon name="resize-outline"></ion-icon>
 				</button>
@@ -152,7 +152,7 @@
 
 					<div class="d-flex mb-3">
 						<a>
-							<img src="@(comment.User.ProfilePictureUrl ?? "/images/user.png")" class="mt-1" style="width: 32px; height: 32px;" />
+							<img src="@(comment.User.ProfilePictureUrl ?? "/images/user.png")" class="mt-1" style="width: 32px; height: 32px; object-fit: cover;" />
 						</a>
 						<div class="flex-grow-1 ms-2">
 							<div class="d-flex justify-content-between">
@@ -162,7 +162,7 @@
 							<div class="d-flex justify-content-between mt-1">
 								<p class="mb-1">@comment.Content</p>
 								<form asp-controller="Home" asp-action="RemovePostComment" class="remove-comment-form">
-									@Html.AntiForgeryToken()
+                                    @Html.AntiForgeryToken()
 									<input type="hidden" name="commentId" value="@comment.Id" />
 									<input type="hidden" name="postId" value="@comment.PostId" />
 									<button type="submit" class="btn btn-link text-danger btn-sm p-0" title="Remove comment">
@@ -185,7 +185,7 @@
 			<form asp-controller="Home" asp-action="AddPostComment" class="add-comment-form">
 				@Html.AntiForgeryToken()
 				<div class="d-flex align-items-start border-top border-light px-3 py-3">
-					<img src="~/images/user.png" class="rounded-circle me-2" style="width: 32px; height: 32px;" />
+					<img src="@User.GetProfilePictureUrl()" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" />
 
 					<div class="flex-grow-1">
 						<input type="hidden" name="postId" value="@Model.Id" />

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using SocialNetwork.Data.Helpers;
 using SocialNetwork.Data.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SocialNetwork.Data.Services
 {
-    public class PostService : IPostService
+    public class PostService: IPostService
     {
         private readonly AppDBContext _context;
         public PostService(AppDBContext context)
@@ -82,6 +83,14 @@ namespace SocialNetwork.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<List<Post>> GetUserPostsAsync(int userId)
+        {
+            // All posts written by this user (including their private ones)
+            return await VisiblePostsQuery(userId)
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.DateCreated)
+                .ToListAsync();
+        }
         public async Task<List<Post>> GetSavedPostsAsync(int userId)
         {
             // Posts this user has added to favorites

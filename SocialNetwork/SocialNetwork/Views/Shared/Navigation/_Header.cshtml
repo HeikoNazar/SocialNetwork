@@ -19,8 +19,8 @@
                 </ul>
 
                 <!-- search -->
-                <form class="d-flex w-50 mx-4" action="#" method="get">
-                    <input class="form-control" type="search" placeholder="Search Profiles, Posts...">
+                <form class="d-flex w-50 mx-4" asp-controller="Search" asp-action="Index" method="get">
+                    <input class="form-control" type="search" name="q" value="@Context.Request.Query["q"]" placeholder="Search accounts or #hashtags" maxlength="50">
                 </form>
             </div>
 
@@ -45,18 +45,18 @@
                 <!-- profile icon -->
                 <div class="dropdown">
                     <button class="btn btn-light p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="~/images/user.png" class="userpic" width="40" height="40" /> <!-- class="rounded-circle" -->
+                        <img src="@User.GetProfilePictureUrl()" class="userpic" width="40" height="40" style="object-fit: cover;" /> <!-- class="rounded-circle" -->
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1070;">
                         <li class="dropdown-item d-flex align-items-center">
-                            <img src="~/images/user.png" class="rounded-circle me-2" width="40" height="40" />
+                            <img src="@User.GetProfilePictureUrl()" class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;" />
                             <div>
                                 <div class="fw-bold">@User.GetFullName()</div>
                                 <div class="text-muted">@@@User.GetUserHandle()</div>
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">My Account</a></li>
+                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Index">My Account</a></li>
                         <li>
                             <form asp-controller="Account" asp-action="Logout" method="post">
                                 <button type="submit" class="dropdown-item">Log Out</button>
