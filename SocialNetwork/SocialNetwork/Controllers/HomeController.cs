@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using SocialNetwork.Data;
+using SocialNetwork.Data.Helpers;
 using SocialNetwork.Data.Models;
 using SocialNetwork.Data.Services;
 using SocialNetwork.Extensions;
@@ -49,15 +50,23 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreatePost(PostVM post)
+    public async Task<IActionResult> CreatePost(PostVM post, string? returnUrl = null)
     {
         // Get the logged in user
         int loggedInUser = User.GetUserId();
 
+        // A post can be text only, image only or both, but not empty
+        var content = post.Content?.Trim() ?? string.Empty;
+        bool hasImage = post.Image != null && post.Image.Length > 0;
+        if (content.Length == 0 && !hasImage)
+        {
+            return RedirectAfterPost(returnUrl);
+        }
+
         // Create a new post
         var newPost = new Post
         {
-            Content = post.Content,
+            Content = content,
             DateCreated = DateTime.UtcNow,
             DateUpdated = DateTime.UtcNow,
             ImageUrl = "",
@@ -67,7 +76,17 @@ public class HomeController : Controller
 
         await _postService.CreatePostAsync(newPost, post.Image);
 
-        // Redirect to the index page
+        return RedirectAfterPost(returnUrl);
+    }
+
+    // Go back to the page the post was created from (only local URLs are allowed), otherwise to the home page
+    private IActionResult RedirectAfterPost(string? returnUrl)
+    {
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return LocalRedirect(returnUrl);
+        }
+
         return RedirectToAction("Index");
     }
 
@@ -111,16 +130,21 @@ public class HomeController : Controller
     {
         int loggedInUser = User.GetUserId();
 
-        //Creat a post object
-        var newComment = new Comment()
+        // Empty comments are ignored
+        var commentContent = postCommentVM.Content?.Trim();
+        if (!string.IsNullOrEmpty(commentContent))
         {
-            UserId = loggedInUser,
-            PostId = postCommentVM.PostId,
-            Content = postCommentVM.Content,
-            DateCreated = DateTime.UtcNow,
-            DateUpdated = DateTime.UtcNow
-        };
-        await _postService.AddPostComentAsync(newComment);
+            //Creat a post object
+            var newComment = new Comment()
+            {
+                UserId = loggedInUser,
+                PostId = postCommentVM.PostId,
+                Content = commentContent,
+                DateCreated = DateTime.UtcNow,
+                DateUpdated = DateTime.UtcNow
+            };
+            await _postService.AddPostComentAsync(newComment);
+        }
 
         var post = await _postService.GetPostByIdAsync(postCommentVM.PostId);
         return PartialView("Home/_Post", post);
@@ -155,7 +179,7 @@ public class HomeController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ToggleSubscription(int userId)
+    public async Task<IActionResult> ToggleSubscription(int userId, string? returnUrl = null)
     {
         int currentUserId = User.GetUserId();
 
@@ -187,12 +211,12 @@ public class HomeController : Controller
             }
         }
 
-        // Called from JavaScript: return just the updated box. Otherwise go back to the home page.
+        // Called from JavaScript: return just the updated box. Otherwise go back to the page the request came from.
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
         {
             return ViewComponent("RecommendedProfiles");
         }
 
-        return RedirectToAction("Index");
+        return RedirectAfterPost(returnUrl);
     }
 }
