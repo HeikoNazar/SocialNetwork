@@ -1,0 +1,85 @@
+@model SocialNetwork.ViewModels.Search.SearchVM
+
+@{
+	ViewData["Title"] = "Search";
+	var returnUrl = Url.Action("Index", "Search", new { q = Model.Query });
+	bool hasQuery = Model.Query.TrimStart('#', '@').Trim().Length > 0;
+}
+
+<div id="site__main" class="container">
+	<div class="row justify-content-center">
+		<div class="col-md-8">
+			@if (!hasQuery)
+			{
+				<p class="text-muted text-center">Type a name or username to find accounts, or a #hashtag to find posts.</p>
+			}
+			else
+			{
+				<h4 class="mb-3">Results for "@Model.Query"</h4>
+
+				@if (Model.Accounts.Count == 0 && Model.Hashtags.Count == 0)
+				{
+					<p class="text-muted">Nothing found.</p>
+				}
+
+				@if (Model.Accounts.Count > 0)
+				{
+					<div class="card mb-3">
+						<div class="card-body">
+							<h5 class="card-title">Accounts</h5>
+							<ul class="list-unstyled mb-0">
+								@foreach (var account in Model.Accounts)
+								{
+									<li class="d-flex justify-content-between align-items-center mb-3">
+										<div class="d-flex align-items-center">
+											<img src="@(account.ProfilePictureUrl ?? "/images/user.png")" alt="@account.FullName" class="me-2 rounded-circle" width="40" height="40" style="object-fit: cover;">
+											<div>
+												<strong>@account.FullName</strong> <br>
+												<small class="text-muted">@@@account.UserHandle</small> <br>
+												<small class="text-muted">Subscribers: @account.SubscribersCount</small>
+											</div>
+										</div>
+										@if (account.IsCurrentUser)
+										{
+											<a asp-controller="Account" asp-action="Index" class="btn btn-sm btn-outline-secondary">You</a>
+										}
+										else
+										{
+											<form asp-controller="Home" asp-action="ToggleSubscription" method="post">
+												<input type="hidden" name="userId" value="@account.Id" />
+												<input type="hidden" name="returnUrl" value="@returnUrl" />
+												<button type="submit" class="btn btn-sm @(account.IsSubscribed ? "btn-outline-secondary" : "btn-primary")">
+													<ion-icon name="@(account.IsSubscribed ? "checkmark-outline" : "person-add-outline")"></ion-icon>
+													@(account.IsSubscribed ? "Subscribed" : "Subscribe")
+												</button>
+											</form>
+										}
+									</li>
+								}
+							</ul>
+						</div>
+					</div>
+				}
+
+				@if (Model.Hashtags.Count > 0)
+				{
+					<div class="card mb-3">
+						<div class="card-body">
+							<h5 class="card-title">Hashtags</h5>
+							<ul class="list-unstyled mb-0">
+								@foreach (var hashtag in Model.Hashtags)
+								{
+									<li class="mb-2">
+										<a asp-controller="Home" asp-action="Hashtag" asp-route-name="@hashtag.Name">#@hashtag.Name</a>
+										<br>
+										<span class="text-muted small">@hashtag.PostsCount @(hashtag.PostsCount == 1 ? "post" : "posts")</span>
+									</li>
+								}
+							</ul>
+						</div>
+					</div>
+				}
+			}
+		</div>
+	</div>
+</div>
